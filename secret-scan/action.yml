@@ -9,7 +9,8 @@ runs:
         fetch-depth: "0"
 
     - name: Use Vermeer Definitions # forked from official repo with exceptions for false positives
-      run: mkdir security; wget -P security/ https://raw.githubusercontent.com/vermeer-corp/gitleaks/master/config/gitleaks.toml
+      run: mkdir security-config; wget -P security-config/ https://raw.githubusercontent.com/vermeer-corp/gitleaks/master/config/gitleaks.toml
+      shell: bash
 
     - name: Run GitLeaks Scan
       id: gitleaks
@@ -26,6 +27,7 @@ runs:
         echo "output: ${{ steps.gitleaks.outputs.output }}"
         echo "command: ${{ steps.gitleaks.outputs.command }}"
         echo "report: ${{ steps.gitleaks.outputs.report }}"
+      shell: bash
 
     - name: Upload SARIF report  # only runs if secrets were already committed
       if: ${{ failure() && github.event_name != 'pull_request' }}
