@@ -1,1 +1,0 @@
-password='This_i$_my_p@ssw0rd!'
