@@ -1,0 +1,11 @@
+name: GitLeaks Secret Scan
+
+inputs:
+  repo-name:
+    description: Name of the calling repository
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Report secret finding
