@@ -4,9 +4,6 @@ inputs:
   secrets-found:
     description: Whether or not secrets were found
     required: true
-  repo-name:
-    description: Name of the calling repository
-    required: true
 
 runs:
   using: "composite"
@@ -32,7 +29,7 @@ runs:
     - name: Delete entry if it exists
       if: ${{ inputs.secrets-found == 'false' }}
       run: |
-        vulnhash=$(echo Secrets${{ github.repo_name }} | md5sum | awk '{print $1}')
+        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
         cat tracking.json \
         | jq --arg vuln $vulnhash 'del(.$vuln)' > tracking.json
       shell: bash
@@ -40,7 +37,7 @@ runs:
     - name: Add or update entry
       if: ${{ inputs.secrets-found == 'true' }}
       run: |
-        vulnhash=$(echo Secrets${{ github.repo_name }} | md5sum | awk '{print $1}')
+        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
         lastDiscovered=$(date +%s.%NZ)
         cat tracking.json \
         | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln.lastDiscovered = $last' \
