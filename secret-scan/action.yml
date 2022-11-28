@@ -25,14 +25,14 @@ runs:
         
     - name: Report no secrets found
       if: ${{ github.event_name != 'pull_request' }}
-      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      uses: vermeer-corp/sec-ci-actions/secret-report@track-gitleaks
       with:
         found-secrets: false
         app-key: ${{ inputs.app-key }}
 
     - name: Report secrets found
       if: ${{ failure() && github.event_name != 'pull_request' }}
-      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      uses: vermeer-corp/sec-ci-actions/secret-report@track-gitleaks
       with:
         found-secrets: true
         app-key: ${{ inputs.app-key }}
