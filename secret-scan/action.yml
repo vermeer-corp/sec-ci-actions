@@ -18,14 +18,14 @@ runs:
       with:
         config: security/gitleaks.toml
         
-#     - name: Report no secrets found
-#       if: ${{ github.event_name != 'pull_request' }}
-#       uses: vermeer-corp/sec-ci-actions/secret-report@main
-#       with:
-#         found-secrets: false
+    - name: Report no secrets found
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      with:
+        found-secrets: false
 
-#     - name: Report secrets found
-#       if: ${{ failure() && github.event_name != 'pull_request' }}
-#       uses: vermeer-corp/sec-ci-actions/secret-report@main
-#       with:
-#         found-secrets: true
+    - name: Report secrets found
+      if: ${{ failure() && github.event_name != 'pull_request' }}
+      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      with:
+        found-secrets: true
