@@ -1,5 +1,10 @@
 name: GitLeaks Secret Scan
 
+inputs:
+  app-key:
+    description: Private key used to update tracker
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -23,9 +28,11 @@ runs:
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: false
+        app-key: ${{ inputs.app-key }}
 
     - name: Report secrets found
       if: ${{ failure() && github.event_name != 'pull_request' }}
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: true
+        app-key: ${{ inputs.app-key }}
