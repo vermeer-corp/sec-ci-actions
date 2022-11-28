@@ -26,7 +26,7 @@ runs:
         | base64 --decode > tracking.json
       shell: bash
       
-    - name: Delete entry if it exists
+    - name: Delete entry if it exists and no secrets were found
       if: ${{ inputs.secrets-found == 'false' }}
       run: |
         vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
@@ -34,14 +34,14 @@ runs:
         | jq --arg vuln $vulnhash 'del(.$vuln)' > tracking.json
       shell: bash
       
-    - name: Add or update entry
+    - name: Add or update entry if secrets were found
       if: ${{ inputs.secrets-found == 'true' }}
       run: |
         vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
         lastDiscovered=$(date +%s.%NZ)
         cat tracking.json \
         | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln.lastDiscovered = $last' \
-        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln |= if has("firstDiscovered") then . else . + {firstDiscovered: $last} end' > tracking.json
+        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln |= if has("firstDiscovered") then . else . + {firstDiscovered: $last, expires: false} end' > tracking.json
       shell: bash
       
     - name: Update report
