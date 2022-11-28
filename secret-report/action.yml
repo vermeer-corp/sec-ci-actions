@@ -4,6 +4,9 @@ inputs:
   secrets-found:
     description: Whether or not secrets were found
     required: true
+  app-key:
+    description: Private key used to update tracker
+    required: true
 
 runs:
   using: "composite"
