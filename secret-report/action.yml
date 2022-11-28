@@ -23,8 +23,9 @@ runs:
         curl \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
-          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json \
-        | jq '.content' \
+          -o content.json \
+          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json; \
+        jq '.content' content.json \
         | sed -i 's/\\\\n//g' \
         | base64 --decode > tracking.json
       shell: bash
