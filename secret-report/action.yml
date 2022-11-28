@@ -16,7 +16,7 @@ runs:
       uses: vermeer-corp/pt-github-app-pat-action@v1.5
       with:
         github_app_id: 264647
-        github_app_private_key: ${{ secrets.COMPLIANCE_REPORT_PRIV_KEY }}
+        github_app_private_key: ${{ inputs.app-key }}
 
     - name: Download report
       run: |
