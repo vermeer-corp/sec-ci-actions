@@ -1,6 +1,10 @@
 name: GitLeaks Secret Scan
 
 inputs:
+  app-id:
+    description: App ID used to update tracker
+    required: false
+    default: ""
   app-key:
     description: Private key used to update tracker
     required: false
@@ -36,4 +40,5 @@ runs:
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: true
+        app-id: ${{ inputs.app-id }}
         app-key: ${{ inputs.app-key }}
