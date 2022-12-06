@@ -4,6 +4,9 @@ inputs:
   secrets-found:
     description: Whether or not secrets were found
     required: true
+  app-id:
+    description: App ID used to update tracker
+    required: true
   app-key:
     description: Private key used to update tracker
     required: true
@@ -13,10 +16,10 @@ runs:
   steps:
     - name: Get token
       id: get_token
-      uses: vermeer-corp/pt-github-app-pat-action@v1.5
+      uses: getsentry/action-github-app-token@v2
       with:
-        github_app_id: 264647
-        github_app_private_key: ${{ inputs.app-key }}
+        app_id: ${{ inputs.app-id }}
+        private_key: ${{ inputs.app-key }}
 
     - name: Download report
       run: |
@@ -26,7 +29,7 @@ runs:
           -o content.json \
           https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json; \
         jq '.content' content.json \
-        | sed -i 's/\\\\n//g' \
+        | sed -i 's/\\n//g' \
         | base64 --decode > tracking.json
       shell: bash
       
