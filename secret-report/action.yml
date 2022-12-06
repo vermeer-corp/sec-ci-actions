@@ -1,0 +1,62 @@
+name: Report Secrets
+
+inputs:
+  secrets-found:
+    description: Whether or not secrets were found
+    required: true
+  app-key:
+    description: Private key used to update tracker
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get token
+      id: get_token
+      uses: vermeer-corp/pt-github-app-pat-action@v1.5
+      with:
+        github_app_id: 264647
+        github_app_private_key: ${{ inputs.app-key }}
+
+    - name: Download report
+      run: |
+        curl \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
+          -o content.json \
+          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json; \
+        jq '.content' content.json \
+        | sed -i 's/\\\\n//g' \
+        | base64 --decode > tracking.json
+      shell: bash
+      
+    - name: Delete entry if it exists and no secrets were found
+      if: ${{ inputs.secrets-found == 'false' }}
+      run: |
+        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
+        cat tracking.json \
+        | jq --arg vuln $vulnhash 'del(.$vuln)' > tracking.json
+      shell: bash
+      
+    - name: Add or update entry if secrets were found
+      if: ${{ inputs.secrets-found == 'true' }}
+      run: |
+        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
+        lastDiscovered=$(date +%s.%NZ)
+        cat tracking.json \
+        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln.lastDiscovered = $last' \
+        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln |= if has("firstDiscovered") then . else . + {firstDiscovered: $last, expires: false} end' > tracking.json
+      shell: bash
+      
+    - name: Update report
+      run: |
+        echo '{"message":"Add secret to report","committer":{"name":"secret-reporter[bot]","email":"secret-reporter[bot]@users.noreply.github.com"},"content":"CONTENT"}' > request.json
+        content=$(cat tracking.json | base64)
+        sed -i "s/CONTENT/$content/g" request.json
+        curl  \
+          -X PUT \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
+          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json \
+          -d $(cat request.json)
+      shell: bash
