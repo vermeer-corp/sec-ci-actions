@@ -25,14 +25,14 @@ runs:
         config: security/gitleaks.toml
         
     - name: Report if no secrets are found
-      if: ${{ inputs.app-key != "no-key" && github.event_name != 'pull_request' }}
+      if: ${{ inputs.app-key != 'no-key' && github.event_name != 'pull_request' }}
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: false
         app-key: ${{ inputs.app-key }}
 
     - name: Report if secrets are found
-      if: ${{ inputs.app-key != "no-key" && failure() && github.event_name != 'pull_request' }}
+      if: ${{ inputs.app-key != 'no-key' && failure() && github.event_name != 'pull_request' }}
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: true
