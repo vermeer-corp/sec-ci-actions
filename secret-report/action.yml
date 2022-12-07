@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Get token
       id: get_token
-      uses: getsentry/action-github-app-token@v2
+      uses: getsentry/action-github-app-token@v1
       with:
         app_id: ${{ inputs.app-id }}
         private_key: ${{ inputs.app-key }}
