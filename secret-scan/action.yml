@@ -1,0 +1,44 @@
+name: GitLeaks Secret Scan
+
+inputs:
+  app-id:
+    description: App ID used to update tracker
+    required: false
+    default: ""
+  app-key:
+    description: Private key used to update tracker
+    required: false
+    default: "no-key"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: "0"
+
+    - name: Use Vermeer Definitions # forked from official repo with exceptions for false positives
+      run: mkdir security-config; wget -P security-config/ https://raw.githubusercontent.com/vermeer-corp/gitleaks/master/config/gitleaks.toml
+      shell: bash
+
+    - name: Run GitLeaks Scan
+      id: gitleaks
+      uses: DariuszPorowski/github-action-gitleaks@v2
+      with:
+        config: security/gitleaks.toml
+        
+    - name: Report if no secrets are found
+      if: ${{ inputs.app-key != 'no-key' && github.event_name != 'pull_request' }}
+      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      with:
+        found-secrets: false
+        app-key: ${{ inputs.app-key }}
+
+    - name: Report if secrets are found
+      if: ${{ inputs.app-key != 'no-key' && failure() && github.event_name != 'pull_request' }}
+      uses: vermeer-corp/sec-ci-actions/secret-report@main
+      with:
+        found-secrets: true
+        app-id: ${{ inputs.app-id }}
+        app-key: ${{ inputs.app-key }}
