@@ -26,7 +26,7 @@ runs:
       id: gitleaks
       uses: DariuszPorowski/github-action-gitleaks@v2
       with:
-        config: security/gitleaks.toml
+        config: security-config/gitleaks.toml
         
     - name: Report if no secrets are found
       if: ${{ inputs.app-key != 'no-key' && github.event_name != 'pull_request' }}
