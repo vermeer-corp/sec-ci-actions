@@ -1,1 +1,15 @@
-bmFtZTogU2VjcmV0IFNjYW4KCiMgUGxlYXNlIHNldCB0aGUgYnJhbmNoZXMgYmVsb3cgdG8gcmVmbGVjdCB0aGUgYWN0aXZlCiMgYnJhbmNoKGVzKSB0aGF0IG1vc3QgZGV2ZWxvcG1lbnQgaGFwcGVucyBvbi4Kb246CiAgcHVsbF9yZXF1ZXN0OgogIHdvcmtmbG93X2Rpc3BhdGNoOgoKam9iczoKICBzZWNyZXQtc2NhbjoKICAgIHJ1bnMtb246IHVidW50dS1sYXRlc3QKICAgIHN0ZXBzOgogICAgICAtIG5hbWU6IFNjYW4gZm9yIGhhcmQtY29kZWQgc2VjcmV0cwogICAgICAgIGlkOiBzZWNyZXQtc2NhbgogICAgICAgIHVzZXM6IHZlcm1lZXItY29ycC9zZWMtY2ktYWN0aW9ucy9zZWNyZXQtc2NhbkBtYWlu
+name: Secret Scan
+
+# Please set the branches below to reflect the active
+# branch(es) that most development happens on.
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan for hard-coded secrets
+        id: secret-scan
+        uses: vermeer-corp/sec-ci-actions/secret-scan@main
