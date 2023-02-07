@@ -26,6 +26,11 @@ runs:
       run: mkdir security-config; wget -P security-config/ https://raw.githubusercontent.com/vermeer-corp/gitleaks/master/config/gitleaks.toml
       shell: bash
 
+    - name: test git refs
+      run: |
+        git rev-parse "refs/remotes/origin/${GITHUB_BASE_REF}"
+        git rev-parse "refs/remotes/pull/${GITHUB_REF_NAME}"
+
     - name: Run GitLeaks Scan
       id: gitleaks
       uses: DariuszPorowski/github-action-gitleaks@v2
