@@ -30,6 +30,7 @@ runs:
       run: |
         git rev-parse "refs/remotes/origin/${GITHUB_BASE_REF}"
         git rev-parse "refs/remotes/pull/${GITHUB_REF}"
+        echo ${GITHUB_SHA}
       shell: bash
 
     - name: Run GitLeaks Scan
