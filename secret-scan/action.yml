@@ -9,6 +9,10 @@ inputs:
     description: Private key used to update tracker
     required: false
     default: "no-key"
+  webhook-url:
+    description: Webhook URL used to notify of secret findings
+    required: false
+    default: "no-url"
 
 runs:
   using: "composite"
@@ -27,16 +31,9 @@ runs:
       uses: DariuszPorowski/github-action-gitleaks@v2
       with:
         config: security-config/gitleaks.toml
-        
-    - name: Report if no secrets are found
-      if: ${{ inputs.app-key != 'no-key' && github.event_name != 'pull_request' }}
-      uses: vermeer-corp/sec-ci-actions/secret-report@main
-      with:
-        found-secrets: false
-        app-key: ${{ inputs.app-key }}
 
     - name: Report if secrets are found
-      if: ${{ inputs.app-key != 'no-key' && failure() && github.event_name != 'pull_request' }}
+      if: ${{ inputs.app-key != 'no-key' && inputs.webhook-url != 'no-url' && failure() }}
       uses: vermeer-corp/sec-ci-actions/secret-report@main
       with:
         found-secrets: true
