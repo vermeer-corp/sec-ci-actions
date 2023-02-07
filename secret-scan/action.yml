@@ -29,7 +29,7 @@ runs:
     - name: test git refs
       run: |
         git rev-parse "refs/remotes/origin/${GITHUB_BASE_REF}"
-        git rev-parse "refs/remotes/pull/${GITHUB_REF}"
+        git rev-parse "${GITHUB_REF}"
         echo ${GITHUB_SHA}
       shell: bash
 
