@@ -26,6 +26,11 @@ runs:
       run: mkdir security-config; wget -P security-config/ https://raw.githubusercontent.com/vermeer-corp/gitleaks/master/config/gitleaks.toml
       shell: bash
 
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
     - name: Run GitLeaks Scan
       id: gitleaks
       uses: lawndoc/github-action-gitleaks@v2
