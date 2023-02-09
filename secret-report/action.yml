@@ -21,10 +21,6 @@ runs:
         app_id: ${{ inputs.app-id }}
         private_key: ${{ inputs.app-key }}
 
-    - name: Get PR URL
-      uses: kceb/pull-request-url-action@v1
-      id: pr-url
-
     - name: Comment on PR
       uses: thollander/actions-comment-pull-request@v2
       with:
