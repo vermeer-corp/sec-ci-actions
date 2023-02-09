@@ -36,6 +36,6 @@ runs:
       if: ${{ inputs.app-key != 'no-key' && inputs.webhook-url != 'no-url' && failure() }}
       uses: vermeer-corp/sec-ci-actions/secret-report@dev
       with:
-        found-secrets: true
         app-id: ${{ inputs.app-id }}
         app-key: ${{ inputs.app-key }}
+        webhook-url: ${{ inputs.webhook-url }}
