@@ -32,7 +32,7 @@ runs:
         message: |
           Secrets were found in this PR. Please review the workflow logs for details.
           If you believe this is a false detection, please do one of the following:
-          - Add a `gitleaks:allow` comment to the end of the line of code with the secret
+          - Add a comment on the same line of code as the secret and include the text: `gitleaks:allow`
           - Add the secret to a `.gitleaksignore` file in the root of the repository ([docs](https://github.com/zricethezav/gitleaks#additional-configuration))
           - For widespread false positives, please contact C.J. May about modifying the [Vermeer Gitleaks config](https://github.com/vermeer-corp/gitleaks/blob/master/config/gitleaks.toml)
       
