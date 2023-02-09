@@ -1,14 +1,14 @@
 name: Report Secrets
 
 inputs:
-  secrets-found:
-    description: Whether or not secrets were found
-    required: true
   app-id:
     description: App ID used to update tracker
     required: true
   app-key:
     description: Private key used to update tracker
+    required: true
+  webhook-url:
+    description: Webhook URL used to notify of secret findings
     required: true
 
 runs:
@@ -21,45 +21,22 @@ runs:
         app_id: ${{ inputs.app-id }}
         private_key: ${{ inputs.app-key }}
 
-    - name: Download report
-      run: |
-        curl \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
-          -o content.json \
-          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json; \
-        jq '.content' content.json \
-        | sed -i 's/\\n//g' \
-        | base64 --decode > tracking.json
-      shell: bash
+    - name: Comment on PR
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+        message: |
+          Secrets were found in this PR. Please review the workflow logs for details.
+          If you believe this is a false detection, please do one of the following:
+          - Add a comment on the same line of code as the secret and include the text: `gitleaks:allow`
+          - Add the secret to a `.gitleaksignore` file in the root of the repository ([docs](https://github.com/zricethezav/gitleaks#additional-configuration))
+          - For widespread false positives, please contact C.J. May about modifying the [Vermeer Gitleaks config](https://github.com/vermeer-corp/gitleaks/blob/master/config/gitleaks.toml)
       
-    - name: Delete entry if it exists and no secrets were found
-      if: ${{ inputs.secrets-found == 'false' }}
-      run: |
-        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
-        cat tracking.json \
-        | jq --arg vuln $vulnhash 'del(.$vuln)' > tracking.json
-      shell: bash
-      
-    - name: Add or update entry if secrets were found
-      if: ${{ inputs.secrets-found == 'true' }}
-      run: |
-        vulnhash=$(echo Secrets${{ github.repository }} | md5sum | awk '{print $1}')
-        lastDiscovered=$(date +%s.%NZ)
-        cat tracking.json \
-        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln.lastDiscovered = $last' \
-        | jq --arg vuln $vulnhash --arg last $lastDiscovered '.$vuln |= if has("firstDiscovered") then . else . + {firstDiscovered: $last, expires: false} end' > tracking.json
-      shell: bash
-      
-    - name: Update report
-      run: |
-        echo '{"message":"Add secret to report","committer":{"name":"secret-reporter[bot]","email":"secret-reporter[bot]@users.noreply.github.com"},"content":"CONTENT"}' > request.json
-        content=$(cat tracking.json | base64)
-        sed -i "s/CONTENT/$content/g" request.json
-        curl  \
-          -X PUT \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
-          https://api.github.com/repos/vermeer-corp/sec-repo-audit/contents/tracking.json \
-          -d $(cat request.json)
-      shell: bash
+    - name: Send a message to Microsoft Teams
+      uses: aliencube/microsoft-teams-actions@v0.8.0
+      with:
+        webhook_uri: ${{ inputs.webhook-url }}
+        title: Secret Scan Failed
+        summary: New secrets were found in a pull request
+        text: Secrets were found in a PR in the ${{ github.repository }} repository. Please review the workflow logs for details.
+        actions: '[{ "@type": "OpenUri", "name": "Pull Request", "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/pull/${{ github.event.number }}" }] }]'
