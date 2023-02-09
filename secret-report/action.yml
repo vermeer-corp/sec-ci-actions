@@ -42,4 +42,5 @@ runs:
         webhook_uri: ${{ inputs.webhook-url }}
         title: Secret Scan Failed
         summary: New secrets were found in a pull request
-        actions: '[{ "@type": "OpenUri", "name": "Pull Request", "targets": [{ "os": "default", "uri": "${{ steps.pr-url.outputs.url }}" }] }]'
+        text: Secrets were found in a PR in the ${{ github.repository }} repository. Please review the workflow logs for details.
+        actions: '[{ "@type": "OpenUri", "name": "Pull Request", "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/pull/${{ github.event.number }}" }] }]'
