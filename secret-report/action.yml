@@ -31,6 +31,12 @@ runs:
           - Add a comment on the same line of code as the secret and include the text: `gitleaks:allow`
           - Add the secret to a `.gitleaksignore` file in the root of the repository ([docs](https://github.com/zricethezav/gitleaks#additional-configuration))
           - For widespread false positives, please contact C.J. May about modifying the [Vermeer Gitleaks config](https://github.com/vermeer-corp/gitleaks/blob/master/config/gitleaks.toml)
+          
+          For actual secrets, you'll need to do one of the following:
+          1. Revoke the secret and add it to .gitleaksignore
+          2. Remove the secret from the git history using something like BFG Repo Cleaner
+          
+          The secret scanner will continue to flag secrets in the git history after they have been removed. This is intended behavior because a valid API key is still considered leaked if it is in the git history (even if it has been removed from the head commit). Taking either of the above actions will re-protect the secret.
       
     - name: Send a message to Microsoft Teams
       uses: aliencube/microsoft-teams-actions@v0.8.0
