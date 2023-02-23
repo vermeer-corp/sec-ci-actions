@@ -34,7 +34,7 @@ runs:
           
           For actual secrets, you'll need to do one of the following:
           1. Revoke the secret and add it to .gitleaksignore
-          2. Remove the secret from the git history using something like BFG Repo Cleaner
+          2. Remove the secret from the git history using something like [BFG Repo Cleaner](https://rtyley.github.io/bfg-repo-cleaner/)
           
           The secret scanner will continue to flag secrets in the git history after they have been removed. This is intended behavior because a valid API key is still considered leaked if it is in the git history (even if it has been removed from the head commit). Taking either of the above actions will re-protect the secret.
       
