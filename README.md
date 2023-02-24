@@ -2,11 +2,11 @@
 
 Security-related composite actions used in Vermeer's CI pipeline
 
+## Actions
+
 ### report-issue
 
 Add a custom issue to the code compliance tracker
-
-## Actions
 
 ### secret-scan
 
