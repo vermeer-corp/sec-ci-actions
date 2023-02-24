@@ -10,4 +10,4 @@ Scan for secrets such as API keys, passwords, etc. in the code
 
 ### secret-report
 
-Report discovered secrets to the internal code compliance tracker for immediate attention
+If secret-scan fails, comment on the PR with instructions for remediation and notify the security team for auditing purposes
