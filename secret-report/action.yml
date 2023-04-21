@@ -34,9 +34,9 @@ runs:
           - For widespread false positives, please contact C.J. May about modifying the [Vermeer Gitleaks config](https://github.com/vermeer-corp/gitleaks/blob/master/config/gitleaks.toml)
           
           For actual secrets, you'll need to do __all__ of the following:
-          - Remove the secret
-          - __squash and merge__ this PR when it is ready to be merged, which will remove the secret from the git history
-          - __delete the branch__ this PR came from after the PR is merged
+          - Invalidate the secret (change password, revoke API key, etc.)
+          - Add the secret to a `.gitleaksignore` file in the root of the repository ([docs](https://github.com/zricethezav/gitleaks#additional-configuration))
+          - Update all applications that use the secret
           
           If you don't follow the above instructions, the scanner will continue to flag the secret in the git history (even after it's been deleted from the file). This is intended behavior because a valid API key or password is still considered leaked if it is in the git history. Taking either of the above actions will re-protect the secret.
       
