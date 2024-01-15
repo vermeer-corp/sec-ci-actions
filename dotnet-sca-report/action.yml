@@ -36,6 +36,7 @@ runs:
               | .id as $id
               | .resolvedVersion as $resolvedVersion
               | .vulnerabilities[]
+                | select(.severity == "High" or .severity == "Critical")
                 | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
           | $header, .' vulns.json > toplevel-vulns.txt
         if [ -s toplevel-vulns.txt ]; then cat toplevel-vulns.txt >> vulns.txt; else echo "None" >> vulns.txt; fi
@@ -51,6 +52,7 @@ runs:
               | .id as $id
               | .resolvedVersion as $resolvedVersion
               | .vulnerabilities[]
+                | select(.severity == "High" or .severity == "Critical")
                 | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
           | $header, .' vulns.json > transitive-vulns.txt
         if [ -s transitive-vulns.txt ]; then cat transitive-vulns.txt >> vulns.txt; else echo "None" >> vulns.txt; fi
