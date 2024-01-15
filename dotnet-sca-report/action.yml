@@ -27,32 +27,32 @@ runs:
         echo "## Vulnerable packages blocking merge:" > vulns.txt
         echo "### Top-level packages:" >> vulns.txt
         jq -r '.projects[]
-        | select(.frameworks)
-        | .path as $project
-        | .frameworks[]
-        | .framework as $framework
-        | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
-        | .topLevelPackages[]?
-        | .id as $id
-        | .resolvedVersion as $resolvedVersion
-        | .vulnerabilities[]
-        | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
-        | $header, .' vulns.json > toplevel-vulns.txt
+          | select(.frameworks)
+          | .path as $project
+          | .frameworks[]
+            | .framework as $framework
+            | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
+            | .topLevelPackages[]?
+              | .id as $id
+              | .resolvedVersion as $resolvedVersion
+              | .vulnerabilities[]
+                | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
+          | $header, .' vulns.json > toplevel-vulns.txt
         if [ -s toplevel-vulns.txt ]; then cat toplevel-vulns.txt >> vulns.txt; else echo "None" >> vulns.txt; fi
         echo "" >> vulns.txt
         echo "### Transitive packages:" >> vulns.txt
         jq -r '.projects[]
-        | select(.frameworks)
-        | .path as $project
-        | .frameworks[]
-        | .framework as $framework
-        | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
-        | .transitivePackages[]?
-        | .id as $id
-        | .resolvedVersion as $resolvedVersion
-        | .vulnerabilities[]
-        | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
-        | $header, .' vulns.json > transitive-vulns.txt
+          | select(.frameworks)
+          | .path as $project
+          | .frameworks[]
+            | .framework as $framework
+            | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
+            | .transitivePackages[]?
+              | .id as $id
+              | .resolvedVersion as $resolvedVersion
+              | .vulnerabilities[]
+                | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
+          | $header, .' vulns.json > transitive-vulns.txt
         if [ -s transitive-vulns.txt ]; then cat transitive-vulns.txt >> vulns.txt; else echo "None" >> vulns.txt; fi
 
     - name: Comment on PR
