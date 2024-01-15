@@ -1,0 +1,47 @@
+name: Report .NET SCA Failure
+
+inputs:
+  app-id:
+    description: App ID used to update tracker
+    required: true
+  app-key:
+    description: Private key used to update tracker
+    required: true
+  vulnerable-packages:
+    description: List of vulnerable packages with fixed versions in json format
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get token
+      id: get_token
+      uses: getsentry/action-github-app-token@v1
+      with:
+        app_id: ${{ inputs.app-id }}
+        private_key: ${{ inputs.app-key }}
+
+    - name: Format vulnerable packages text
+      run: |
+        echo ${{ inputs.vulnerable-packages }} > vulns.json
+        echo "## Vulnerable packages blocking merge:" > vulns.txt
+        echo "" >> vulns.txt
+        jq -r '.projects[]
+        | select(.frameworks)
+        | .path as $project
+        | .frameworks[]
+        | .framework as $framework
+        | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
+        | .transitivePackages[]
+        | .vulnerabilities[]
+        | select(.severity == "High" or .severity == "Critical")
+        | "\t__Package:__ \(.id)\n\t__Fixed Version:__ \(.resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
+        | $header, .' vulns.json >> vulns.txt
+        echo "" >> vulns.txt
+
+    - name: Comment on PR
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+        filePath: ./vulns.txt
+      
