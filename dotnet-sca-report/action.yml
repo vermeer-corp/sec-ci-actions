@@ -33,9 +33,11 @@ runs:
         | .framework as $framework
         | "__Project:__ \($project)\n__Target Framework:__ \($framework)" as $header
         | .transitivePackages[]
+        | .id as $id
+        | .resolvedVersion as $resolvedVersion
         | .vulnerabilities[]
         | select(.severity == "High" or .severity == "Critical")
-        | "\t__Package:__ \(.id)\n\t__Fixed Version:__ \(.resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
+        | "\t__Package:__ \($id)\n\t__Fixed Version:__ \($resolvedVersion)\n\t__Severity:__ \(.severity)\n\t__Advisory URL:__ [\(.advisoryurl)](\(.advisoryurl))\n"
         | $header, .' vulns.json >> vulns.txt
         echo "" >> vulns.txt
 
