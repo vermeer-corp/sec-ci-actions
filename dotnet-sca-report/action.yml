@@ -2,10 +2,10 @@ name: Report .NET SCA Failure
 
 inputs:
   app-id:
-    description: App ID used to update tracker
+    description: App ID used to post PR comment
     required: true
   app-key:
-    description: Private key used to update tracker
+    description: Private key used to post PR comment
     required: true
   vulnerable-packages:
     description: List of vulnerable packages with fixed versions in json format
@@ -21,7 +21,7 @@ runs:
         app_id: ${{ inputs.app-id }}
         private_key: ${{ inputs.app-key }}
 
-    - name: Format vulnerable packages text
+    - name: Create PR comment from scan output
       run: |
         echo ${{ inputs.vulnerable-packages }} > vulns.json
         echo "## Vulnerable packages blocking merge:" > vulns.txt
