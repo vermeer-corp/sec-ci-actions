@@ -1,0 +1,29 @@
+name: .NET SCA Scan
+
+inputs:
+  app-id:
+    description: App ID used to post PR comment
+    required: true
+  app-key:
+    description: Private key used to post PR comment
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Run dotnet SCA scan
+      id: scan
+      run: |
+        dotnet list package --vulnerable --include-transitive --format json > vulns.json
+        grep '"severity": "Critical"' vulns.json || grep '"severity": "High"' vulns.json || (echo "VULNS=$(cat vulns.json)" >> $GITHUB_OUTPUT && exit 1)
+
+    - name: Post PR comment if SCA scan failed
+      if: ${{ failure() }}
+      uses: vermeer-corp/sec-ci-actions/dotnet-sca-report@dotnet-sca  # TODO: change to main before merging
+      with:
+        app-id: ${{ inputs.app-id }}
+        app-key: ${{ inputs.app-key }}
+        vulnerable-packages: ${{ steps.scan.outputs.VULNS }}
