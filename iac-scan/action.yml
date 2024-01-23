@@ -11,9 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
     - name: Download Wiz CLI
       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
 
