@@ -1,0 +1,27 @@
+name: Wiz IaC Scan
+
+inputs:
+  client-id:
+    description: Wiz service account client ID
+    required: true
+  client-secret:
+    description: Wiz service account client secret
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download Wiz CLI
+      run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+
+    - name: Authenticate to Wiz
+      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      env:
+        WIZ_CLIENT_ID: ${{ inputs.client-id }}
+        WIZ_CLIENT_SECRET: ${{ inputs.client-key }}
+
+    - name: Run wiz CLI IaC scan
+      run: ./wizcli iac scan --path . --policy "Vermeer IaC Policy"
