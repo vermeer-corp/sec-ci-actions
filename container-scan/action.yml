@@ -30,12 +30,13 @@ runs:
       run: |
         echo "# Wiz Container Scan" >> $GITHUB_STEP_SUMMARY
         ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --output scan.txt,human,true
-        echo "No issues found!" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ No issues found!" >> $GITHUB_STEP_SUMMARY
 
     - name: Output findings to summary
       if: ${{ failure() }}
       shell: bash
       run: |
+        echo "### ❌ Issues found!" >> $GITHUB_STEP_SUMMARY
         cat scan.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "Please update the above packages to remove the vulnerabilities." >> $GITHUB_STEP_SUMMARY
