@@ -20,7 +20,10 @@ runs:
 
     - name: Authenticate to Wiz
       shell: bash
-      run: ./wizcli auth --id "${{ inputs.client-id }}" --secret "${{ inputs.client-secret }}"
+      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      env:
+        WIZ_CLIENT_ID: ${{ inputs.client-id }}
+        WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
     - name: Run wiz CLI IaC scan
       shell: bash
