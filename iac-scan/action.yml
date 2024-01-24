@@ -44,7 +44,7 @@ runs:
       if: ${{ steps.cli-scan.outcome == 'success' }}
       run: |
         echo "### ✅ No issues found!" >> output.txt
-        cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+        cat output.txt >> $GITHUB_STEP_SUMMARY
 
     - name: Output findings to summary
       shell: bash
@@ -58,7 +58,7 @@ runs:
         # echo "| -- | -- | -- | -- | " >> output.txt
         # tail -n +2 scan.csv | awk '{ if ($1=="HIGH" || $1=="CRITICAL") {printf "|"; printf $1; printf "|"; printf $2; printf "|"; printf $5; printf "|"; printf $9; print "|" }}' FPAT='[^,]*|("([^"]|"")*")' >> output.txt
         echo "</details>" >> output.txt
-        cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+        cat output.txt >> $GITHUB_STEP_SUMMARY
 
     - name: upload zip
       uses: actions/upload-artifact@v4

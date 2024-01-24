@@ -48,7 +48,7 @@ runs:
       if: ${{ steps.cli-scan.outcome == 'success' }}
       run: |
         echo "### ✅ No issues found!" >> output.txt
-        cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+        cat output.txt >> $GITHUB_STEP_SUMMARY
 
 
     - name: Output findings to summary
