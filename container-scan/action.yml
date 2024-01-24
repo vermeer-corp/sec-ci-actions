@@ -61,7 +61,7 @@ runs:
         cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
 
     - name: Comment on PR
-      if: ${{ inputs.app-key != 'no-key' &&  ${{ steps.cli-scan.outcome != 'success' }} }}
+      if: ${{ inputs.app-key != 'no-key' && steps.cli-scan.outcome != 'success' }} 
       uses: thollander/actions-comment-pull-request@v2
       with:
         GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
