@@ -13,20 +13,20 @@ inputs:
 
 runs:
   using: "composite"
+  defaults:
+      run:
+        shell: bash
   steps:
     - name: Download Wiz CLI
-      shell: bash
       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
 
     - name: Authenticate to Wiz
-      shell: bash
       run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
       env:
         WIZ_CLIENT_ID: ${{ inputs.client-id }}
         WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
     - name: Run Wiz CLI IaC scan
-      shell: bash
       run: |
         echo "# Wiz Container Scan" >> $GITHUB_STEP_SUMMARY
         ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --output scan.txt,human,true
@@ -34,7 +34,6 @@ runs:
 
     - name: Output findings to summary
       if: ${{ failure() }}
-      shell: bash
       run: |
         echo "### ❌ Issues found!" >> $GITHUB_STEP_SUMMARY
         cat scan.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
