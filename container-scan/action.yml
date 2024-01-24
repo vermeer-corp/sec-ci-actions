@@ -21,20 +21,21 @@ inputs:
 
 runs:
   using: "composite"
-  defaults:
-      run:
-        shell: bash
+
   steps:
     - name: Download Wiz CLI
+      shell: bash
       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
 
     - name: Authenticate to Wiz
+      shell: bash
       run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
       env:
         WIZ_CLIENT_ID: ${{ inputs.client-id }}
         WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
     - name: Run Wiz CLI IaC scan
+      shell: bash
       run: |
         echo "# Wiz Container Scan" > output.txt
         ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --output scan.txt,human,true
@@ -42,6 +43,7 @@ runs:
         cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
 
     - name: Output findings to summary
+      shell: bash
       if: ${{ failure() }}
       run: |
         echo "### ❌ Issues found!" >> output.txt
@@ -51,6 +53,7 @@ runs:
         cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
 
     - name: Comment on PR
+      shell: bash
       if: ${{ inputs.app-key != 'no-key' && failure() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
