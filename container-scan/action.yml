@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         echo "# Wiz Container Scan ${{ inputs.tag }}" > output.txt
-        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" -C -S -T --output scan.txt,json,true
+        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.txt,sarif,true
 
     - name: Output findings to summary
       shell: bash
