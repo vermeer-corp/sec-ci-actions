@@ -53,7 +53,6 @@ runs:
         cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
 
     - name: Comment on PR
-      shell: bash
       if: ${{ inputs.app-key != 'no-key' && failure() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
