@@ -39,7 +39,8 @@ runs:
       continue-on-error: true
       shell: bash
       run: |
-        echo "# Wiz Container Scan ${{ inputs.tag }}" > output.txt
+        echo "# Wiz Container Scan" > output.txt
+        echo "__Image:__ ${{ inputs.tag }}" >> outputs.txt
         ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
 
     - name: Output findings to summary
