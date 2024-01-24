@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         echo "# Wiz Container Scan ${{ inputs.tag }}" > output.txt
-        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.txt,sarif,true
+        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
 
     - name: Output findings to summary
       shell: bash
@@ -55,10 +55,17 @@ runs:
       if:  ${{ steps.cli-scan.outcome != 'success' }}
       run: |
         echo "### ❌ Issues found!" >> output.txt
-        cat scan.txt >> output.txt
+        # cat scan.txt >> output.txt
         echo "" >> output.txt
         echo "Please update the above packages to remove the vulnerabilities." >> output.txt
         cat output.txt >> $GITHUB_STEP_SUMMARY
+
+    - name: upload zip
+      uses: actions/upload-artifact@v4
+      if:  ${{ steps.cli-scan.outcome != 'success' }}
+      with:
+        name: wiz-artifact
+        path: scan.zip
 
     - name: Comment on PR
       if: ${{ inputs.app-key != 'no-key' && steps.cli-scan.outcome != 'success' }} 
