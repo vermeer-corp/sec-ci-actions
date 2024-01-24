@@ -35,7 +35,7 @@ runs:
         WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
     - name: Run Wiz CLI IaC scan
-      step: cli-scan
+      id: cli-scan
       continue-on-error: true
       shell: bash
       run: |
