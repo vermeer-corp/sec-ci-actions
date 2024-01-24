@@ -55,13 +55,13 @@ runs:
       if:  ${{ steps.cli-scan.outcome != 'success' }}
       run: |
         echo "### ❌ Issues found!" >> output.txt
+        echo "<details><summary>Please update the following packages in the container image:</summary>" >> output.txt
+        echo "" >> output.txt
         unzip scan.zip
         echo "|severity|vulnerability|name|description|" >> output.txt
         echo "| -- | -- | -- | -- | " >> output.txt
         tail -n +2 scan.csv | awk '{ if ($1=="HIGH" || $1=="CRITICAL") {printf "|"; printf $1; printf "|"; printf $2; printf "|"; printf $5; printf "|"; printf $9; print "|" }}' FPAT='[^,]*|("([^"]|"")*")' >> output.txt
-        # cat scan.txt >> output.txt
-        echo "" >> output.txt
-        echo "Please update the above packages to remove the vulnerabilities." >> output.txt
+        echo "</details>" >> output.txt
         cat output.txt >> $GITHUB_STEP_SUMMARY
 
     - name: upload zip
