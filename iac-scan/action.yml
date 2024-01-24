@@ -10,6 +10,9 @@ inputs:
 
 runs:
   using: "composite"
+  defaults:
+      run:
+        shell: bash
   steps:
     - name: Download Wiz CLI
       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
@@ -20,5 +23,16 @@ runs:
         WIZ_CLIENT_ID: ${{ inputs.client-id }}
         WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
-    - name: Run wiz CLI IaC scan
-      run: ./wizcli iac scan --path . --policy "Vermeer IaC Policy"
+    - name: Run Wiz CLI IaC scan
+      run: |
+        echo "# Wiz IaC Scan" >> $GITHUB_STEP_SUMMARY
+        ./wizcli iac scan --path . --policy "Vermeer IaC Policy" --output scan.txt,human,true
+        echo "### ✅ No issues found!" >> $GITHUB_STEP_SUMMARY
+
+    - name: Output findings to summary
+      if: ${{ failure() }}
+      run: |
+        echo "### ❌ Issues found!" >> $GITHUB_STEP_SUMMARY
+        cat scan.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Please address the above misconfigurations." >> $GITHUB_STEP_SUMMARY
