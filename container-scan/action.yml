@@ -21,12 +21,7 @@ runs:
     - name: Authenticate to Wiz
       shell: bash
       run: ./wizcli auth --id "${{ inputs.client-id }}" --secret "${{ inputs.client-secret }}"
-      env:
-        WIZ_CLIENT_ID: ${{ inputs.client-id }}
-        WIZ_CLIENT_SECRET: ${{ inputs.client-key }}
 
     - name: Run wiz CLI IaC scan
       shell: bash
-      run: ./wizcli docker scan --image $TAG --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy"
-      env:
-        TAG: ${{ inputs.tag }}
+      run: ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy"
