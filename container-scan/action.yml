@@ -25,6 +25,17 @@ runs:
         WIZ_CLIENT_ID: ${{ inputs.client-id }}
         WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
 
-    - name: Run wiz CLI IaC scan
+    - name: Run Wiz CLI IaC scan
       shell: bash
-      run: ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy"
+      run: |
+        echo "# Wiz Container Scan" >> $GITHUB_STEP_SUMMARY
+        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" | tee scan.txt
+        echo "No issues found!" >> $GITHUB_STEP_SUMMARY
+
+    - name: Output findings to summary
+      if: ${{ failure() }}
+      shell: bash
+      run: |
+        grep 'Severity: CRITICAL\|Severity: HIGH' -B 1 -A 1 scan.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Please update the above packages to remove the vulnerabilities." >> $GITHUB_STEP_SUMMARY
