@@ -1,6 +1,14 @@
 name: Wiz Container Image Scan
 
 inputs:
+  app-id:
+    description: GitHub App ID used to comment on PR
+    required: false
+    default: ""
+  app-key:
+    description: Private key for above App ID
+    required: false
+    default: "no-key"
   client-id:
     description: Wiz service account client ID
     required: true
@@ -28,14 +36,23 @@ runs:
 
     - name: Run Wiz CLI IaC scan
       run: |
-        echo "# Wiz Container Scan" >> $GITHUB_STEP_SUMMARY
+        echo "# Wiz Container Scan" > output.txt
         ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --output scan.txt,human,true
-        echo "### ✅ No issues found!" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ No issues found!" >> output.txt
+        cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
 
     - name: Output findings to summary
       if: ${{ failure() }}
       run: |
-        echo "### ❌ Issues found!" >> $GITHUB_STEP_SUMMARY
-        cat scan.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Please update the above packages to remove the vulnerabilities." >> $GITHUB_STEP_SUMMARY
+        echo "### ❌ Issues found!" >> output.txt
+        cat scan.txt | xargs -n1 -d'\n' echo "$*" >> output.txt
+        echo "" >> output.txt
+        echo "Please update the above packages to remove the vulnerabilities." >> output.txt
+        cat output.txt | xargs -n1 -d'\n' echo "$*" >> $GITHUB_STEP_SUMMARY
+
+    - name: Comment on PR
+      if: ${{ inputs.app-key != 'no-key' && failure() }}
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+        filePath: ./output.txt
