@@ -1,6 +1,10 @@
 name: Wiz Container Image Scan
 
 inputs:
+  artifacts:
+    description: Export the Wiz scan as a zipped CSV artifact
+    required: false
+    default: ""
   app-id:
     description: GitHub App ID used to comment on PR
     required: false
@@ -67,7 +71,7 @@ runs:
 
     - name: upload zip
       uses: actions/upload-artifact@v4
-      if:  ${{ steps.cli-scan.outcome != 'success' }}
+      if:  ${{ inputs.artifacts != '' && steps.cli-scan.outcome != 'success' }}
       with:
         name: wiz-artifact
         path: scan.zip
