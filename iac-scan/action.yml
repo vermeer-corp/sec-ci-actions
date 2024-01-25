@@ -51,7 +51,7 @@ runs:
       if: ${{ steps.cli-scan.outcome != 'success' }}
       run: |
         echo "### ❌ Issues found!" >> output.txt
-        echo "<details><summary>Please update the following packages in the container image:</summary>" >> output.txt
+        echo "<details><summary>Please address the following misconfigurations in your IaC files:</summary>" >> output.txt
         echo "" >> output.txt
         unzip scan.zip
         echo "|severity|vulnerability|file|line number|description|" >> output.txt
