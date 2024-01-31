@@ -1,0 +1,84 @@
+name: Wiz Container Image Scan
+
+inputs:
+  artifacts:
+    description: Export the Wiz scan as a zipped CSV artifact
+    required: false
+    default: ""
+  app-id:
+    description: GitHub App ID used to comment on PR
+    required: false
+    default: ""
+  app-key:
+    description: Private key for above App ID
+    required: false
+    default: "no-key"
+  client-id:
+    description: Wiz service account client ID
+    required: true
+  client-secret:
+    description: Wiz service account client secret
+    required: true
+  tag:
+    description: Tag of the container image to be scanned
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Download Wiz CLI
+      shell: bash
+      run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+
+    - name: Authenticate to Wiz
+      shell: bash
+      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      env:
+        WIZ_CLIENT_ID: ${{ inputs.client-id }}
+        WIZ_CLIENT_SECRET: ${{ inputs.client-secret }}
+
+    - name: Run Wiz CLI IaC scan
+      id: cli-scan
+      continue-on-error: true
+      shell: bash
+      run: |
+        echo "# Wiz Container Scan" > output.txt
+        echo "__Image:__ ${{ inputs.tag }}" >> output.txt
+        ./wizcli docker scan --image ${{ inputs.tag }} --secrets --policy "Vermeer Vulnerability Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
+
+    - name: Output findings to summary
+      shell: bash
+      if: ${{ steps.cli-scan.outcome == 'success' }}
+      run: |
+        echo "### ✅ No issues found!" >> output.txt
+        cat output.txt >> $GITHUB_STEP_SUMMARY
+
+
+    - name: Output findings to summary
+      shell: bash
+      if:  ${{ steps.cli-scan.outcome != 'success' }}
+      run: |
+        echo "### ❌ Issues found!" >> output.txt
+        echo "<details><summary>Please update the following packages in the container image:</summary>" >> output.txt
+        echo "" >> output.txt
+        unzip scan.zip
+        echo "|severity|vulnerability|name|description|" >> output.txt
+        echo "| -- | -- | -- | -- | " >> output.txt
+        tail -n +2 scan.csv | awk '{ if ($1=="HIGH" || $1=="CRITICAL") {printf "|"; printf $1; printf "|"; printf $2; printf "|"; printf $5; printf "|"; printf $9; print "|" }}' FPAT='[^,]*|("([^"]|"")*")' >> output.txt
+        echo "</details>" >> output.txt
+        cat output.txt >> $GITHUB_STEP_SUMMARY
+
+    - name: upload zip
+      uses: actions/upload-artifact@v4
+      if:  ${{ inputs.artifacts != '' && steps.cli-scan.outcome != 'success' }}
+      with:
+        name: wiz-artifact
+        path: scan.zip
+
+    - name: Comment on PR
+      if: ${{ inputs.app-key != 'no-key' && steps.cli-scan.outcome != 'success' }} 
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+        filePath: ./output.txt
