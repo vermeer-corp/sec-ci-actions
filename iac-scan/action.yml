@@ -51,7 +51,7 @@ runs:
         echo "# Wiz IaC Scan" >> output.txt
         ./wizcli iac scan --path "$SCANPATH" --type "$SCANTYPE" --policy "Vermeer IaC Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
       env:
-        SCANPATH: ${{ inputs.paths }}
+        SCANPATH: ${{ inputs.paths }}  # use env to avoid command-line injection vulnerability
         SCANTYPE: ${{ inputs.types }}
 
     - name: Output findings to summary
