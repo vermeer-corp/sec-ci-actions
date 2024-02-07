@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         echo "# Wiz IaC Scan" >> output.txt
-        ./wizcli iac scan --path . --policy "Vermeer IaC Policy" --policy-hits-only --output scan.zip,csv-zip,true
+        ./wizcli iac scan --path . --policy "Vermeer IaC Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
 
     - name: Output findings to summary
       shell: bash
