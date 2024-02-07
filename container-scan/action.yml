@@ -82,3 +82,8 @@ runs:
       with:
         GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
         filePath: ./output.txt
+
+    - name: Fail workflow on scan policy failure
+      if: ${{ steps.cli-scan.outcome != 'success' }}
+      shell: bash
+      run: exit 1

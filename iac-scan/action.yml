@@ -78,8 +78,13 @@ runs:
         path: scan.zip
 
     - name: Comment on PR
-      if: ${{ inputs.app-key != 'no-key' && failure() }}
+      if: ${{ inputs.app-key != 'no-key' && steps.cli-scan.outcome != 'success' }}
       uses: thollander/actions-comment-pull-request@v2
       with:
         GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
         filePath: ./output.txt
+
+    - name: Fail workflow on scan policy failure
+      if: ${{ steps.cli-scan.outcome != 'success' }}
+      shell: bash
+      run: exit 1
