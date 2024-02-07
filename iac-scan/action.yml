@@ -19,10 +19,6 @@ inputs:
   client-secret:
     description: Wiz service account client secret
     required: true
-  paths:
-    description: File/directory to scan
-    required: false
-    default: "."
   types:
     description: Narrow down the scan to specific types (supported values - Ansible, AzureResourceManager, Cloudformation, Dockerfile, GoogleCloudDeploymentManager, Kubernetes, Terraform)
     required: false
@@ -49,10 +45,9 @@ runs:
       shell: bash
       run: |
         echo "# Wiz IaC Scan" >> output.txt
-        ./wizcli iac scan --path "$SCANPATH" --types "$SCANTYPES" --policy "Vermeer IaC Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
+        ./wizcli iac scan --path . --types "$SCANTYPES" --policy "Vermeer IaC Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
       env:
-        SCANPATH: ${{ inputs.paths }}  # use env to avoid command-line injection vulnerability
-        SCANTYPES: ${{ inputs.types }}
+        SCANTYPES: ${{ inputs.types }}  # use env to avoid command-line injection vulnerability
 
     - name: Output findings to summary
       shell: bash
