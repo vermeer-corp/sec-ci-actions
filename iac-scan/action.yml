@@ -19,6 +19,10 @@ inputs:
   client-secret:
     description: Wiz service account client secret
     required: true
+  types:
+    description: Narrow down the scan to specific types (supported values - Ansible, AzureResourceManager, Cloudformation, Dockerfile, GoogleCloudDeploymentManager, Kubernetes, Terraform)
+    required: false
+    default: "Ansible,AzureResourceManager,Cloudformation,Dockerfile,GoogleCloudDeploymentManager,Kubernetes,Terraform"
 
 runs:
   using: "composite"
@@ -41,7 +45,9 @@ runs:
       shell: bash
       run: |
         echo "# Wiz IaC Scan" >> output.txt
-        ./wizcli iac scan --path . --policy "Vermeer IaC Policy" --policy-hits-only --output scan.zip,csv-zip,true
+        ./wizcli iac scan --path . --types "$SCANTYPES" --policy "Vermeer IaC Policy,Vermeer Secrets Policy" --policy-hits-only --output scan.zip,csv-zip,true
+      env:
+        SCANTYPES: ${{ inputs.types }}  # use env to avoid command-line injection vulnerability
 
     - name: Output findings to summary
       shell: bash
@@ -72,8 +78,13 @@ runs:
         path: scan.zip
 
     - name: Comment on PR
-      if: ${{ inputs.app-key != 'no-key' && failure() }}
+      if: ${{ inputs.app-key != 'no-key' && steps.cli-scan.outcome != 'success' }}
       uses: thollander/actions-comment-pull-request@v2
       with:
         GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
         filePath: ./output.txt
+
+    - name: Fail workflow on scan policy failure
+      if: ${{ steps.cli-scan.outcome != 'success' }}
+      shell: bash
+      run: exit 1
